@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/recordatorio.css">
+
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/popper.min.js"></script>
+</head>
+
+<body>
+    <div class="wrapper fadeInDown">
+        <div id="formContent">
+            <!-- Tabs Titles -->
+
+            <!-- Icon -->
+            <div class="fadeIn first">
+                <img src="img/logo.svg" id="icon" alt="User Icon" />
+            </div>
+
+            <!-- Login Form -->
+            <form method="POST" action="validar.php">
+                <input type="text" id="username" class="fadeIn second" name="username" placeholder="login">
+                <input type="text" id="password" class="fadeIn third" name="password" placeholder="password">
+                <input type="submit" class="fadeIn fourth" name="login" value="Log In">
+            </form>
+
+            <!-- Remind Passowrd 
+            <div id="formFooter">
+                <a class="underlineHover" href="#">Forgot Password?</a>
+            </div>-->
+        </div>
+    </div>
+</body>
+
+</html>

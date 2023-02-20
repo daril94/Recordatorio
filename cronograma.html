@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recordatorio</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/moment.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="css/fullcalendar.min.css">
+    <script src="js/fullcalendar.min.js"></script>
+    <script src="js/es.js"></script>
+
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/popper.min.js"></script>
+</head>
+
+<style>
+    /* color de la cabecera de la tabla*/
+    .fc th {
+
+        padding: 10px 0px;
+        vertical-align: middle;
+        background: greenyellow;
+    }
+
+    /* negrita el texto de la fecha de hoy*/
+    .fc-center h2 {
+        font-weight: bold;
+    }
+
+    /* primera letra del texto de la fecha en mayusculas*/
+    .fc-center h2:first-letter {
+        text-transform: uppercase;
+    }
+
+    /* color que se marca el dia actual*/
+    .fc-unthemed td.fc-today {
+        background: green;
+    }
+
+    /* bordes de la tabla del calendario*/
+    .fc-unthemed .fc-content,
+    .fc-unthemed .fc-divider,
+    .fc-unthemed .fc-list-heading td,
+    .fc-unthemed .fc-list-view,
+    .fc-unthemed .fc-popover,
+    .fc-unthemed .fc-row,
+    .fc-unthemed tbody,
+    .fc-unthemed td,
+    .fc-unthemed th,
+    .fc-unthemed thead {
+        border-color: 2px black;
+    }
+</style>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col-8">
+                <br><br>
+                <div id="recordatorio">
+
+                </div>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#recordatorio').fullCalendar({
+                header: {
+                    left: 'today, prev, next', //miBoton',
+                    center: 'title',
+                    right: 'month, basicWeek, basicDay'
+
+                },
+
+                customButtons: {
+                    miBoton: {
+                        text: "Nuevo Evento",
+                        click: function () {
+                            alert('Que debo hacer');
+                        }
+
+                    }
+
+                },
+
+                dayClick: function (date, jsEvent, view) {
+
+                    $('#btnAgregar').prop("disabled", false);
+                    $('#btnEliminar').prop("disabled", true);
+                    $('#btnModificar').prop("disabled", true);
+                    $('#btnSubir').prop("disabled", true);
+                    limpiarTodo();
+                    $('#txtFechaInicio').val(date.format());
+                    $("#preguntarEvento").modal();
+
+                },
+                events: 'http://localhost/recordatorio/eventos.php',
+
+                eventClick: function (calEvent, jsEvent, view) {
+
+
+                    $('#btnAgregar').prop("disabled", true);
+                    $('#btnEliminar').prop("disabled", false);
+                    $('#btnModificar').prop("disabled", false);
+                    $('#btnSubir').prop("disabled", false);
+
+
+                    $('#intID').val(calEvent.id);
+                    $('#txtNombrePrograma').val(calEvent.nombrePrograma);
+                    $('#txtNombreActividad').val(calEvent.title);
+                    $('#txtActividad').val(calEvent.actividad);
+                    $('#txtCodigoDocumento').val(calEvent.codigoDocumento);
+                    $('#txtPeriodicidad').val(calEvent.periodicidad);
+                    $('#txtMesImplementacion').val(calEvent.mesImplementacion);
+                    $('#textColor').val(calEvent.textColor);
+                    $('#txtColor').val(calEvent.color);
+                    $('#txtInterval').val(calEvent.intervalo);
+                    FechaHoraInicio = calEvent.start._i.split(" ");
+                    $('#txtFechaInicio').val(FechaHoraInicio[0]);
+                    $('#txtHoraInicio').val(FechaHoraInicio[1]);
+                    FechoHoraFinal = calEvent.end._i.split(" ");
+                    $('#txtFechaFinal').val(FechoHoraFinal[0]);
+                    $('#txtHoraFinal').val(FechoHoraFinal[1]);
+
+                    $("#preguntarEvento").modal();
+
+                },
+
+                editable: true,
+                eventDrop: function (calEvent) {
+                    $('#intID').val(calEvent.id);
+                    $('#txtNombrePrograma').val(calEvent.nombrePrograma);
+                    $('#txtNombreActividad').val(calEvent.title);
+                    $('#txtActividad').val(calEvent.actividad);
+                    $('#txtCodigoDocumento').val(calEvent.codigoDocumento);
+                    $('#txtPeriodicidad').val(calEvent.periodicidad);
+                    $('#txtMesImplementacion').val(calEvent.mesImplementacion);
+                    $('#textColor').val(calEvent.textColor);
+                    $('#txtColor').val(calEvent.color);
+                    $('#txtInterval').val(calEvent.intervalo);
+
+                    var FechaHoraInicio = calEvent.start.format().split("T");
+                    $('#txtFechaInicio').val(FechaHoraInicio[0]);
+                    $('#txtHoraInicio').val(FechaHoraInicio[1]);
+                    var FechoHoraFinal = calEvent.end.format().split("T");
+                    $('#txtFechaFinal').val(FechoHoraFinal[0]);
+                    $('#txtHoraFinal').val(FechoHoraFinal[1]);
+
+                    recolectarDatosGui();
+                    enviarInformacion('modificar', nuevoEvento, true);
+
+
+                }
+
+
+
+            });
+        });
+    </script>
+
+    <!-- Crear Evento -->
+    <div class="modal fade" id="preguntarEvento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloEvento"> Manejo de Tareas</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                            </div>
+                            <div class="form-group col-md-4" style="text-align: center;">
+                                <label>Id: </label>
+                                <input type="int" name="intID" class="form-control" id="intID" readonly disabled><br>
+                            </div>
+                            <div class="form-group col-md-4">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <label>Nombre del Programa: </label>
+                                <input type="text" name="txtNombrePrograma" id="txtNombrePrograma" class="form-control">
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label>Actividad: </label>
+                                <textarea name="txtActividad" id="txtActividad" class="form-control" rows="3"
+                                    style="resize: both;"></textarea>
+
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label>Nombre de la Actividad: </label>
+                                <textarea name="txtNombreActividad" id="txtNombreActividad" class="form-control"
+                                    rows="3" style="resize: both;"></textarea>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label>Codigo del Documeto :</label>
+                                <textarea name="txtCodigoDocumento" id="txtCodigoDocumento" class="form-control"
+                                    rows="3" style="resize: both;"></textarea>
+
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label>Periodicidad :</label>
+                                <textarea name="txtPeriodicidad" id="txtPeriodicidad" class="form-control" rows="3"
+                                    style="resize: both;"></textarea>
+
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label>Mes de Implementation: </label>
+                                <textarea name="txtMesImplementacion" id="txtMesImplementacion" class="form-control"
+                                    rows="3" style="resize: both;"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label>Color del Texto :</label>
+                                <input type="color" name="txtTextColor" id="txtTextColor" class="form-control">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Color Fondo: </label>
+                                <input type="color" name="txtColor" id="txtColor" class="form-control">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label>Intervalo:</label>
+                                <input type="number" name="txtInterval" id="txtInterval" value="7" maxlength="10"
+                                    readonly class="form-control">
+                            </div>
+                            <!-- <div class="form-group col-md-12">
+                                <label>Ubicacion:</label> <input type="file" name="txtUbicacion" id="txtUbicacion"
+                                    class="form-control"><br>
+                            </div>
+                            -->
+                            <div class="form-group col-md-6">
+                                <label>Fecha Inicio: </label> <input type="text" name="txtFechaInicio"
+                                    id="txtFechaInicio" readonly class="form-control">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Hora Inicio: </label> <input type="text" name="txtHoraInicio" id="txtHoraInicio"
+                                    value="00:00" readonly class="form-control">
+                            </div>
+                            <div class="form-group col-md-6">
+
+                                <label>Fecha Final: </label> <input type="date" name="txtFechaFinal" id="txtFechaFinal"
+                                    class="form-control">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Hora final:</label> <input type="text" name="txtHoraFinal" id="txtHoraFinal"
+                                    value="23:59" readonly class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" id="btnAgregar" class="btn btn-success">Agregar</button>
+                    <button type="button" id="btnEliminar" class="btn btn-danger">Borrar</button>
+                    <button type="button" id="btnModificar" class="btn btn-warning">Modificar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" id="btnSubir" class="btn btn-primary" data-dismiss="modal">Subir</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!--  Subir archivo-->
+
+    <div class="modal fade" id="subirArchivo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloSubir"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="descripcionSubir"></div>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Subir Archivo</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var nuevoEvento;
+        $('#btnAgregar').click(function () {
+            recolectarDatosGui();
+            enviarInformacion('agregar', nuevoEvento);
+        });
+
+        $('#btnEliminar').click(function () {
+            recolectarDatosGui();
+            enviarInformacion('eliminar', nuevoEvento);
+        });
+        $('#btnModificar').click(function () {
+            recolectarDatosGui();
+            enviarInformacion('modificar', nuevoEvento);
+        });
+
+        $('#btnSubir').click(function () {
+
+            $("#preguntarEvento").modal('toggle');
+            $("#subirArchivo").modal('toggle');
+
+
+        });
+
+        function recolectarDatosGui() {
+            nuevoEvento = {
+                id: $('#intID').val(),
+                nombrePrograma: $('#txtNombrePrograma').val(),
+                title: $('#txtNombreActividad').val(),
+                actividad: $('#txtActividad').val(),
+                codigoDocumento: $('#txtCodigoDocumento').val(),
+                periodicidad: $('#txtPeriodicidad').val(),
+                mesImplementacion: $('#txtMesImplementacion').val(),
+                textColor: "#000000", //$('#txtTextColor').val(),
+                color: "FFFFFF",//$('#txtColor').val(),
+                intervalo: $('#txtInterval').val(),
+                start: $('#txtFechaInicio').val() + " " + $('#txtHoraInicio').val(),
+                end: $('#txtFechaFinal').val() + " " + $('#txtHoraFinal').val(),
+            };
+
+        }
+
+        function enviarInformacion(accion, objEvento, modal) {
+            $.ajax({
+                type: 'POST',
+                url: 'eventos.php?accion=' + accion,
+                data: objEvento,
+                success: function (msg) {
+                    if (msg) {
+                        $('#recordatorio').fullCalendar('refetchEvents');
+                        if (!modal) {
+                            $("#preguntarEvento").modal('toggle');
+                        }
+
+                        alert('Accion executada exitosamente');
+
+                    }
+                },
+                error: function () {
+
+                    alert('hay un error');
+                }
+
+            });
+
+        }
+
+        function limpiarTodo() {
+            $('#intID').val('');
+            $('#txtNombrePrograma').val('');
+            $('#txtNombreActividad').val('');
+            $('#txtActividad').val('');
+            $('#txtCodigoDocumento').val('');
+            $('#txtPeriodicidad').val('');
+            $('#txtMesImplementacion').val('');
+            $('#textColor').val('');
+            $('#txtColor').val('');
+            $('#txtInterval').val('');
+            $('#txtFechaFinal').val('');
+
+
+        }
+
+    </script>
+
+</body>
+
+</html>
